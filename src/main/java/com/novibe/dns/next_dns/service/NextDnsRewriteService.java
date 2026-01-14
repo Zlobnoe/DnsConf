@@ -1,5 +1,6 @@
 package com.novibe.dns.next_dns.service;
 
+import com.novibe.common.config.EnvironmentVariables;
 import com.novibe.common.data_sources.HostsOverrideListsLoader;
 import com.novibe.common.util.Log;
 import com.novibe.dns.next_dns.http.NextDnsRateLimitedApiProcessor;
@@ -30,7 +31,21 @@ public class NextDnsRewriteService {
 
     public List<CreateRewriteDto> cleanupOutdated(Map<String, CreateRewriteDto> newRewriteRequests) {
         List<RewriteDto> existingRewrites = getExistingRewrites();
+        
+        // Check if FORCE_REWRITE is enabled
+        boolean forceRewrite = "true".equalsIgnoreCase(EnvironmentVariables.FORCE_REWRITE);
+        
+        if (forceRewrite) {
+            // Remove all existing rewrites
+            List<String> allIds = existingRewrites.stream().map(RewriteDto::id).toList();
+            if (!allIds.isEmpty()) {
+                Log.io("FORCE_REWRITE enabled: Removing ALL %s existing rewrites from NextDNS".formatted(allIds.size()));
+                NextDnsRateLimitedApiProcessor.callApi(allIds, nextDnsRewriteClient::deleteRewriteById);
+            }
+            return List.copyOf(newRewriteRequests.values());
+        }
 
+        // Normal mode: only remove outdated rewrites
         List<String> outdatedIds = new ArrayList<>();
 
         for (RewriteDto existingRewrite : existingRewrites) {

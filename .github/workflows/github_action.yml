@@ -15,6 +15,7 @@ jobs:
       BLOCK: ${{ vars.BLOCK }}
       REDIRECT: ${{ vars.REDIRECT }}
       EXTERNAL_IP: ${{ vars.EXTERNAL_IP }}
+      FORCE_REWRITE: ${{ vars.FORCE_REWRITE }}
 
       CLIENT_ID: ${{ secrets.CLIENT_ID }}
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}

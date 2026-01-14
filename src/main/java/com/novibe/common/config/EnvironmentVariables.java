@@ -16,4 +16,6 @@ public class EnvironmentVariables {
 
     public static final String EXTERNAL_IP = System.getenv("EXTERNAL_IP");
 
+    public static final String FORCE_REWRITE = System.getenv("FORCE_REWRITE");
+
 }

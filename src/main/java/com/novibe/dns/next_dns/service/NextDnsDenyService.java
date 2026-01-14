@@ -1,5 +1,6 @@
 package com.novibe.dns.next_dns.service;
 
+import com.novibe.common.config.EnvironmentVariables;
 import com.novibe.common.util.Log;
 import com.novibe.dns.next_dns.http.NextDnsDenyClient;
 import com.novibe.dns.next_dns.http.NextDnsRateLimitedApiProcessor;
@@ -21,6 +22,21 @@ public class NextDnsDenyService {
     public List<String> dropExistingDenys(List<String> newDenyList) {
         Log.io("Fetching existing denylist from NextDNS");
         List<DenyDto> existingDenyList = nextDnsDenyClient.fetchDenylist();
+        
+        // Check if FORCE_REWRITE is enabled
+        boolean forceRewrite = "true".equalsIgnoreCase(EnvironmentVariables.FORCE_REWRITE);
+        
+        if (forceRewrite) {
+            // Remove all existing denys
+            List<String> allIds = existingDenyList.stream().map(DenyDto::getId).toList();
+            if (!allIds.isEmpty()) {
+                Log.io("FORCE_REWRITE enabled: Removing ALL %s existing denys from NextDNS".formatted(allIds.size()));
+                NextDnsRateLimitedApiProcessor.callApi(allIds, nextDnsDenyClient::deleteDenyById);
+            }
+            return newDenyList;
+        }
+        
+        // Normal mode: only add new domains
         Set<String> existingDomainsSet = existingDenyList.stream()
                 .filter(DenyDto::isActive)
                 .map(DenyDto::getId)

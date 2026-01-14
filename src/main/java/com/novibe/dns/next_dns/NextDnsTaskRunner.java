@@ -52,7 +52,7 @@ public class NextDnsTaskRunner implements DnsTaskRunner {
         List<String> rewriteSources = EnvParser.parse(REDIRECT);
         if (!rewriteSources.isEmpty()) {
 
-            Log.step("Obtain rewrite lists from %s sources".formatted(blockSources.size()));
+            Log.step("Obtain rewrite lists from %s sources".formatted(rewriteSources.size()));
             List<HostsOverrideListsLoader.BypassRoute> overrides = overrideListsLoader.fetchWebsites(rewriteSources);
 
             Log.step("Prepare rewrites");
