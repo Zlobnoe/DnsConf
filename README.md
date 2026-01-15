@@ -124,6 +124,55 @@ For `BLOCK`:
 
 Previously generated data is removed **ONLY** when both `BLOCK` and `REDIRECT` sources were not provided.
 
+## Advanced Features
+
+### EXTERNAL_IP - Override All IP Addresses
+
+If you want to redirect all domains from hosts files to a single IP address (e.g., your own server), you can use the `EXTERNAL_IP` environment variable.
+
+Set **environment variable** `EXTERNAL_IP` with your target IP address (e.g., `10.20.30.40`)
+
+**How it works:**
+- When `EXTERNAL_IP` is set, all IP addresses from the hosts files will be replaced with the specified IP
+- When `EXTERNAL_IP` is not set or empty, original IP addresses from hosts files will be used
+- The script will log each processed domain showing which IP is being used
+
+**Example:**
+
+If your hosts file contains:
+```
+1.2.3.4 example.com
+5.6.7.8 domain.org
+```
+
+And `EXTERNAL_IP=10.20.30.40`, both domains will be redirected to `10.20.30.40`
+
+Console output will show:
+```
+>>> Processing: example.com -> 10.20.30.40 (IP changed from 1.2.3.4 to 10.20.30.40)
+>>> Processing: domain.org -> 10.20.30.40 (IP changed from 5.6.7.8 to 10.20.30.40)
+```
+
+### FORCE_REWRITE - Force Complete Rewrite (NextDNS only)
+
+By default, the script works in incremental mode for NextDNS:
+- Only new domains are added
+- Only domains with changed IPs are updated
+- Existing settings remain untouched
+
+If you want to force a complete rewrite of all NextDNS settings, set **environment variable** `FORCE_REWRITE` to `true`
+
+**How it works:**
+- When `FORCE_REWRITE=true`, ALL existing rewrites and deny lists will be removed from NextDNS before adding new ones
+- When `FORCE_REWRITE` is not set or set to any other value, the script works in incremental mode
+
+**Use cases:**
+- You want to ensure NextDNS exactly matches your hosts files
+- You've made manual changes in NextDNS and want to reset everything
+- You're troubleshooting and want a clean state
+
+**⚠️ Warning:** This will remove ALL existing rewrites and deny lists from NextDNS, including manually added ones!
+
 ## GitHub Actions setup
 
 #### Step-by-step video guide: [REDIRECT for NextDNS](https://www.youtube.com/watch?v=vbAXM_xAL5I)
@@ -134,7 +183,9 @@ Previously generated data is removed **ONLY** when both `BLOCK` and `REDIRECT` s
 2) Go _Settings_ => _Environments_
 3) Create _New environment_ with name `DNS`
 4) Provide `AUTH_SECRET` and `CLIENT_ID` to **Environment secrets**
-5) Provide `DNS`,`REDIRECT` and `BLOCK` to **Environment variables**
+5) Provide `DNS`, `REDIRECT` and `BLOCK` to **Environment variables**
+6) (Optional) Add `EXTERNAL_IP` to **Environment variables** if you want to override all IPs
+7) (Optional) Add `FORCE_REWRITE` (value: `true`) to **Environment variables** if you want to force complete rewrite
 
 + The action will be launched every day at **01:30 UTC**. To set another time, change cron at `.github/workflows/github_action.yml`
 + You can run the action manually via `Run workflow` button: switch to _Actions_ tab and choose workflow named **DNS Block&Redirect Configurer cron task**
