@@ -6,7 +6,6 @@ import com.novibe.dns.next_dns.http.NextDnsDenyClient;
 import com.novibe.dns.next_dns.http.NextDnsRateLimitedApiProcessor;
 import com.novibe.dns.next_dns.http.dto.request.CreateDenyDto;
 import com.novibe.dns.next_dns.http.dto.response.deny.DenyDto;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,14 +13,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class NextDnsDenyService {
 
-    private final NextDnsDenyClient nextDnsDenyClient;
-
-    public List<String> dropExistingDenys(List<String> newDenyList) {
+    public List<String> dropExistingDenys(NextDnsDenyClient client, List<String> newDenyList) {
         Log.io("Fetching existing denylist from NextDNS");
-        List<DenyDto> existingDenyList = nextDnsDenyClient.fetchDenylist();
+        List<DenyDto> existingDenyList = client.fetchDenylist();
         
         // Check if FORCE_REWRITE is enabled
         boolean forceRewrite = "true".equalsIgnoreCase(EnvironmentVariables.FORCE_REWRITE);
@@ -31,7 +27,7 @@ public class NextDnsDenyService {
             List<String> allIds = existingDenyList.stream().map(DenyDto::getId).toList();
             if (!allIds.isEmpty()) {
                 Log.io("FORCE_REWRITE enabled: Removing ALL %s existing denys from NextDNS".formatted(allIds.size()));
-                NextDnsRateLimitedApiProcessor.callApi(allIds, nextDnsDenyClient::deleteDenyById);
+                NextDnsRateLimitedApiProcessor.callApi(allIds, client::deleteDenyById);
             }
             return newDenyList;
         }
@@ -45,18 +41,18 @@ public class NextDnsDenyService {
         return newDenyList;
     }
 
-    public void saveDenyList(List<String> newDenylist) {
+    public void saveDenyList(NextDnsDenyClient client, List<String> newDenylist) {
         List<CreateDenyDto> createRequests = newDenylist.stream().map(CreateDenyDto::new).toList();
         Log.io("Saving new denylist to NextDNS...");
-        NextDnsRateLimitedApiProcessor.callApi(createRequests, nextDnsDenyClient::saveDeny);
+        NextDnsRateLimitedApiProcessor.callApi(createRequests, client::saveDeny);
     }
 
-    public void removeAll() {
+    public void removeAll(NextDnsDenyClient client) {
         Log.io("Fetching existing denylist from NextDNS");
-        List<DenyDto> existing = nextDnsDenyClient.fetchDenylist();
+        List<DenyDto> existing = client.fetchDenylist();
         List<String> ids = existing.stream().map(DenyDto::getId).toList();
         Log.io("Removing denylist from NextDNS");
-        NextDnsRateLimitedApiProcessor.callApi(ids, nextDnsDenyClient::deleteDenyById);
+        NextDnsRateLimitedApiProcessor.callApi(ids, client::deleteDenyById);
     }
 
 }

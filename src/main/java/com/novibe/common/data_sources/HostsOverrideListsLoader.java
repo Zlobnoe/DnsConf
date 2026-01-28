@@ -46,4 +46,22 @@ public class HostsOverrideListsLoader extends ListLoader<HostsOverrideListsLoade
         return new BypassRoute(ip, website);
     }
 
+    /**
+     * Applies IP override to a list of BypassRoutes
+     * 
+     * @param routes Original routes
+     * @param externalIp IP to override with (if not null and not blank)
+     * @return New list of routes with overridden IPs
+     */
+    public java.util.List<BypassRoute> applyExternalIp(java.util.List<BypassRoute> routes, String externalIp) {
+        if (externalIp == null || externalIp.isBlank()) {
+            return routes;
+        }
+        
+        Log.io("Applying EXTERNAL_IP %s to %d routes".formatted(externalIp, routes.size()));
+        return routes.stream()
+                .map(route -> new BypassRoute(externalIp, route.website()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
 }

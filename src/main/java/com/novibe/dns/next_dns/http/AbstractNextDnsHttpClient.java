@@ -3,16 +3,21 @@ package com.novibe.dns.next_dns.http;
 import com.novibe.common.HttpRequestSender;
 import com.novibe.common.util.Log;
 
-import static com.novibe.common.config.EnvironmentVariables.AUTH_SECRET;
-import static com.novibe.common.config.EnvironmentVariables.CLIENT_ID;
-
 public abstract class AbstractNextDnsHttpClient extends HttpRequestSender {
+
+    private final String profileId;
+    private final String authSecret;
+
+    protected AbstractNextDnsHttpClient(String profileId, String authSecret) {
+        this.profileId = profileId;
+        this.authSecret = authSecret;
+    }
 
     protected abstract String path();
 
     @Override
     protected String apiUrl() {
-        return "https://api.nextdns.io/profiles/%s".formatted(CLIENT_ID);
+        return "https://api.nextdns.io/profiles/%s".formatted(profileId);
     }
 
     @Override
@@ -22,7 +27,7 @@ public abstract class AbstractNextDnsHttpClient extends HttpRequestSender {
 
     @Override
     protected String authHeaderValue() {
-        return AUTH_SECRET;
+        return authSecret;
     }
 
     @Override

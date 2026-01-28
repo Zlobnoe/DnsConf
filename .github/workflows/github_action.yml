@@ -17,6 +17,9 @@ jobs:
       EXTERNAL_IP: ${{ vars.EXTERNAL_IP }}
       FORCE_REWRITE: ${{ vars.FORCE_REWRITE }}
 
+      # For NextDNS: you can specify multiple profile IDs separated by comma
+      # Example single: CLIENT_ID=abc123
+      # Example multiple: CLIENT_ID=abc123,def456,ghi789
       CLIENT_ID: ${{ secrets.CLIENT_ID }}
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
 

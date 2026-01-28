@@ -173,6 +173,79 @@ If you want to force a complete rewrite of all NextDNS settings, set **environme
 
 **⚠️ Warning:** This will remove ALL existing rewrites and deny lists from NextDNS, including manually added ones!
 
+### Multiple NextDNS Profiles Support
+
+You can configure multiple NextDNS profiles to be updated simultaneously. This is useful if you:
+- Manage multiple NextDNS accounts
+- Have multiple devices or locations with different NextDNS profiles
+- Want to apply the same blocklists/redirects to different profiles
+
+**Basic Configuration:**
+
+Set multiple profile IDs in `CLIENT_ID` separated by commas:
+
+```bash
+CLIENT_ID=abc123,def456,ghi789
+```
+
+**API Keys Configuration:**
+
+1. **Same API key for all profiles (same account):**
+```bash
+CLIENT_ID=abc123,def456,ghi789
+AUTH_SECRET=your_api_key
+```
+All profiles belong to the same NextDNS account
+
+2. **Different API keys for each profile (different accounts):**
+```bash
+CLIENT_ID=abc123,def456,ghi789
+AUTH_SECRET=api_key_1,api_key_2,api_key_3
+```
+Each profile belongs to a different NextDNS account
+
+**EXTERNAL_IP Configuration:**
+
+1. **Same IP for all profiles:**
+```bash
+CLIENT_ID=abc123,def456,ghi789
+AUTH_SECRET=key1,key2,key3
+EXTERNAL_IP=10.20.30.40
+```
+All profiles redirect domains to `10.20.30.40`
+
+2. **Different IP for each profile:**
+```bash
+CLIENT_ID=abc123,def456,ghi789
+AUTH_SECRET=key1,key2,key3
+EXTERNAL_IP=10.20.30.40,10.20.30.41,10.20.30.42
+```
+- Profile `abc123` uses API `key1` and redirects to `10.20.30.40`
+- Profile `def456` uses API `key2` and redirects to `10.20.30.41`
+- Profile `ghi789` uses API `key3` and redirects to `10.20.30.42`
+
+3. **Mixed configuration (some with EXTERNAL_IP, some without):**
+```bash
+CLIENT_ID=abc123,def456,ghi789
+AUTH_SECRET=key1,key2,key3
+EXTERNAL_IP=10.20.30.40,,10.20.30.42
+```
+- Profile `abc123` uses `10.20.30.40`
+- Profile `def456` uses IPs from hosts files
+- Profile `ghi789` uses `10.20.30.42`
+
+**How it works:**
+- The script loads hosts files once (not per profile)
+- Each profile is processed independently with its own API key
+- If one profile fails, others will continue processing
+- Final summary shows how many profiles succeeded/failed
+
+**Benefits:**
+- Update multiple profiles/accounts with one configuration
+- Different API keys for different accounts
+- Different EXTERNAL_IP per profile
+- Atomic operation per profile (failure in one doesn't affect others)
+
 ## GitHub Actions setup
 
 #### Step-by-step video guide: [REDIRECT for NextDNS](https://www.youtube.com/watch?v=vbAXM_xAL5I)

@@ -6,9 +6,9 @@ public class EnvironmentVariables {
 
     public static final String DNS = Objects.requireNonNull(System.getenv("DNS"));
 
-    public static final String CLIENT_ID = Objects.requireNonNull(System.getenv("CLIENT_ID"));
+    public static final String CLIENT_ID = System.getenv("CLIENT_ID");
 
-    public static final String AUTH_SECRET = Objects.requireNonNull(System.getenv("AUTH_SECRET"));
+    public static final String AUTH_SECRET = System.getenv("AUTH_SECRET");
 
     public static final String BLOCK = System.getenv("BLOCK");
 
