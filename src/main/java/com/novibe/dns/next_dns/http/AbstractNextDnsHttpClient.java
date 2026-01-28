@@ -47,13 +47,13 @@ public abstract class AbstractNextDnsHttpClient extends HttpRequestSender {
      * Public method to inject HttpClient dependency
      */
     public void injectHttpClient(HttpClient httpClient) {
-        setHttpClient(httpClient);
+        setHttpClientInternal(httpClient);
     }
 
     /**
      * Public method to inject Gson dependency
      */
     public void injectGson(Gson gson) {
-        setJsonMapper(gson);
+        setJsonMapperInternal(gson);
     }
 }

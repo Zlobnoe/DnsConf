@@ -40,6 +40,20 @@ public abstract class HttpRequestSender {
     @Setter(onMethod_ = @Autowired, value = AccessLevel.PACKAGE)
     private Gson jsonMapper;
 
+    /**
+     * Protected method to allow subclasses to set HttpClient
+     */
+    protected void setHttpClientInternal(HttpClient httpClient) {
+        this.httpClient = httpClient;
+    }
+
+    /**
+     * Protected method to allow subclasses to set Gson
+     */
+    protected void setJsonMapperInternal(Gson jsonMapper) {
+        this.jsonMapper = jsonMapper;
+    }
+
     public <T> T get(String path, Class<T> responseType) {
         return sendRequest(GET, path, null, responseType);
     }
