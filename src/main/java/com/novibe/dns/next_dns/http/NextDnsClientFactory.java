@@ -38,7 +38,7 @@ public class NextDnsClientFactory {
      * Injects HttpClient and Gson dependencies into the client
      */
     private void injectDependencies(AbstractNextDnsHttpClient client) {
-        client.setHttpClient(httpClient);
-        client.setJsonMapper(gson);
+        client.injectHttpClient(httpClient);
+        client.injectGson(gson);
     }
 }
