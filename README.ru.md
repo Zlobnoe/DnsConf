@@ -293,7 +293,7 @@ https://www.youtube.com/watch?v=vbAXM_xAL5I
 6) (Опционально) Добавьте `EXTERNAL_IP` в **Environment variables**, если хотите заменить все IP адреса
 7) (Опционально) Добавьте `FORCE_REWRITE` (значение: `true`) в **Environment variables**, если хотите принудительную перезапись
 
-+ **Action** запускается ежедневно в **01:30 UTC** (04:30 по МСК).  
++ **Action** запускается ежедневно в **23:30 UTC** (04:30 по Челябинску, 02:30 по МСК).  
   Чтобы изменить время, отредактируйте cron в `.github/workflows/github_action.yml`
 + **Action** можно запустить вручную через кнопку **Run workflow**:  
   вкладка _Actions_ → workflow **DNS Block&Redirect Configurer cron task**

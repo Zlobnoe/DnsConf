@@ -260,5 +260,5 @@ EXTERNAL_IP=10.20.30.40,,10.20.30.42
 6) (Optional) Add `EXTERNAL_IP` to **Environment variables** if you want to override all IPs
 7) (Optional) Add `FORCE_REWRITE` (value: `true`) to **Environment variables** if you want to force complete rewrite
 
-+ The action will be launched every day at **01:30 UTC**. To set another time, change cron at `.github/workflows/github_action.yml`
++ The action will be launched every day at **23:30 UTC (04:30 Chelyabinsk time, 02:30 Moscow time)**. To set another time, change cron at `.github/workflows/github_action.yml`
 + You can run the action manually via `Run workflow` button: switch to _Actions_ tab and choose workflow named **DNS Block&Redirect Configurer cron task**

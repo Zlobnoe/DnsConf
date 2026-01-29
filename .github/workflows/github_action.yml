@@ -2,7 +2,7 @@ name: DNS Block&Redirect Configurer cron task
 
 on:
   schedule:
-    - cron: '30 1 * * *' # 04:30 MSK (01:30 UTC)
+    - cron: '30 23 * * *' # 04:30 Chelyabinsk / 02:30 MSK (23:30 UTC)
   workflow_dispatch:
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
       CLIENT_ID: ${{ secrets.CLIENT_ID }}
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
 
-      TZ: Europe/Moscow
+      TZ: Asia/Yekaterinburg  # Chelyabinsk timezone (UTC+5)
 
     steps:
       - name: Checkout repository

@@ -1,12 +1,12 @@
 package com.novibe.dns.next_dns.service;
 
-import com.novibe.common.config.EnvironmentVariables;
 import com.novibe.common.data_sources.HostsOverrideListsLoader;
 import com.novibe.common.util.Log;
 import com.novibe.dns.next_dns.http.NextDnsRateLimitedApiProcessor;
 import com.novibe.dns.next_dns.http.NextDnsRewriteClient;
 import com.novibe.dns.next_dns.http.dto.request.CreateRewriteDto;
 import com.novibe.dns.next_dns.http.dto.response.rewrite.RewriteDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,7 +17,10 @@ import java.util.Map;
 import static java.util.Objects.nonNull;
 
 @Service
+@RequiredArgsConstructor
 public class NextDnsRewriteService {
+
+    private final NextDnsRewriteClient nextDnsRewriteClient;
 
     public Map<String, CreateRewriteDto> buildNewRewrites(List<HostsOverrideListsLoader.BypassRoute> overrides) {
         Map<String, CreateRewriteDto> rewriteDtos = new HashMap<>();
@@ -25,23 +28,9 @@ public class NextDnsRewriteService {
         return rewriteDtos;
     }
 
-    public List<CreateRewriteDto> cleanupOutdated(NextDnsRewriteClient client, Map<String, CreateRewriteDto> newRewriteRequests) {
-        List<RewriteDto> existingRewrites = getExistingRewrites(client);
-        
-        // Check if FORCE_REWRITE is enabled
-        boolean forceRewrite = "true".equalsIgnoreCase(EnvironmentVariables.FORCE_REWRITE);
-        
-        if (forceRewrite) {
-            // Remove all existing rewrites
-            List<String> allIds = existingRewrites.stream().map(RewriteDto::id).toList();
-            if (!allIds.isEmpty()) {
-                Log.io("FORCE_REWRITE enabled: Removing ALL %s existing rewrites from NextDNS".formatted(allIds.size()));
-                NextDnsRateLimitedApiProcessor.callApi(allIds, client::deleteRewriteById);
-            }
-            return List.copyOf(newRewriteRequests.values());
-        }
+    public List<CreateRewriteDto> cleanupOutdated(Map<String, CreateRewriteDto> newRewriteRequests) {
+        List<RewriteDto> existingRewrites = getExistingRewrites();
 
-        // Normal mode: only remove outdated rewrites
         List<String> outdatedIds = new ArrayList<>();
 
         for (RewriteDto existingRewrite : existingRewrites) {
@@ -56,27 +45,27 @@ public class NextDnsRewriteService {
         }
         if (!outdatedIds.isEmpty()) {
             Log.io("Removing %s outdated rewrites from NextDNS".formatted(outdatedIds.size()));
-            NextDnsRateLimitedApiProcessor.callApi(outdatedIds, client::deleteRewriteById);
+            NextDnsRateLimitedApiProcessor.callApi(outdatedIds, nextDnsRewriteClient::deleteRewriteById);
         }
         return List.copyOf(newRewriteRequests.values());
     }
 
-    public List<RewriteDto> getExistingRewrites(NextDnsRewriteClient client) {
+    public List<RewriteDto> getExistingRewrites() {
         Log.io("Fetching existing rewrites from NextDNS");
-        return client.fetchRewrites();
+        return nextDnsRewriteClient.fetchRewrites();
     }
 
-    public void saveRewrites(NextDnsRewriteClient client, List<CreateRewriteDto> createRewriteDtos) {
+    public void saveRewrites(List<CreateRewriteDto> createRewriteDtos) {
         Log.io("Saving %s new rewrites to NextDNS...".formatted(createRewriteDtos.size()));
-        NextDnsRateLimitedApiProcessor.callApi(createRewriteDtos, client::saveRewrite);
+        NextDnsRateLimitedApiProcessor.callApi(createRewriteDtos, nextDnsRewriteClient::saveRewrite);
     }
 
-    public void removeAll(NextDnsRewriteClient client) {
+    public void removeAll() {
         Log.io("Fetching existing rewrites from NextDNS");
-        List<RewriteDto> list = client.fetchRewrites();
+        List<RewriteDto> list = nextDnsRewriteClient.fetchRewrites();
         List<String> ids = list.stream().map(RewriteDto::id).toList();
         Log.io("Removing rewrites from NextDNS");
-        NextDnsRateLimitedApiProcessor.callApi(ids, client::deleteRewriteById);
+        NextDnsRateLimitedApiProcessor.callApi(ids, nextDnsRewriteClient::deleteRewriteById);
     }
 
 }
