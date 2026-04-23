@@ -34,7 +34,7 @@ public class HostsBlockListsLoader extends ListLoader<String> {
     private String removeIp(String line) {
         for (String blockPrefix : BLOCK_PREFIXES) {
             if (line.startsWith(blockPrefix)) {
-                return line.substring(blockPrefix.length() - 1);
+                return line.substring(blockPrefix.length());
             }
         }
         return line;
